@@ -1,68 +1,102 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 // Desafio Batalha Naval - MateCheck
 // Este código inicial serve como base para o desenvolvimento do sistema de Batalha Naval.
 // Siga os comentários para implementar cada parte do desafio.
 
 int main() {
-    int tabuleiro[10][10];
-    int navio = 3;//tamanho do navio
+        int tabuleiro[10][10];
+    int NAVIO = 1;
+    int HABILIDADE = 3;
 
-    // Inicializa o tabuleiro com zeros
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-            tabuleiro[i][j] = 0;
+    // Inicializa o tabuleiro com água (valor 0)
+    for (int l = 0; l < 10; l++) {
+        for (int c = 0; c < 10; c++) {
+            tabuleiro[l][c] = 0;
         }
     }
 
-    //colocar navios
-    int navio_horizontal[3] = {3,3,3};
-    int navio_vertical[3] = {3,3,3};
+    // POSICIONAMENTO DE NAVIOS 
+    // Navio horizontal
+    for (int i = 0; i < 3; i++) tabuleiro[1][1 + i] = NAVIO;
 
-    //cordenadas no navio
-    int linha_h = 2, coluna_h = 4;
-    int linha_v = 6, coluna_v = 1;
+    // Navio vertical
+    for (int i = 0; i < 3; i++) tabuleiro[2 + i][3] = NAVIO;
 
-    // Verifica se há sobreposição
-    int sobreposicao = 0;
-    for (int i = 0; i < navio; i++) {
-        if (tabuleiro[linha_h][coluna_h + i] == 3 || tabuleiro[linha_v + i][coluna_v] == 3) {
-            sobreposicao = 1;
-            break;
+    // Navio diagonal 
+    for (int i = 0; i < 3; i++) tabuleiro[2 + i][2 + i] = NAVIO;
+
+    // Navio diagonal 
+    for (int i = 0; i < 3; i++) tabuleiro[2 + i][6 - i] = NAVIO;
+
+    //MATRIZES DE HABILIDADE 3x3
+
+    int cone[3][3], cruz[3][3], losango[3][3];
+
+    // Cone: 
+    for (int  l = 0; l < 3; l++) {
+        for (int c = 0; c < 3; c++) {
+            cone[l][c] = (c >= 1 - l && c <= 1 + l) ? 1 : 0;
         }
     }
 
-    if (!sobreposicao) {
-        // Posiciona navio horizontal
-        for (int i = 0; i < navio; i++) {
-            tabuleiro[linha_h][coluna_h + i] = navio_horizontal[i];
+    // Cruz:
+    for (int l = 0; l < 3; l++) {
+        for (int c = 0; c < 3; c++) {
+            cruz[l][c] = (l == 1 || c == 1) ? 1 : 0;
         }
-
-        // Posiciona navio vertical
-        for (int i = 0; i < navio; i++) {
-            tabuleiro[linha_v + i][coluna_v] = navio_vertical[i];
-        }
-    } else {
-        printf("Erro: os navios se sobrepõem.\n");
-        return 1;
     }
 
-    
+    // Losango:
+    for (int l = 0; l < 3; l++) {
+        for (int c = 0; c < 3; c++) {
+            losango[l][c] = (abs(l - 1) + abs(c - 1) <= 1) ? 1 : 0;
+        }
+    }
 
-    // Cabeçalho com letras A-J
+    //  SOBREPOSIÇÃO 
+
+    void aplicar(int matriz[3][3], int origem_l, int origem_c) {
+        for (int l = 0; l < 3; l++) {
+            for (int c = 0; c < 3; c++) {
+                int tab_l = origem_l - 1 + l;
+                int tab_c = origem_c - 1 + c;
+                if (matriz[l][c] == 1 &&
+                    tab_l >= 0 && tab_l < 10 &&
+                    tab_c >= 0 && tab_c < 10 &&
+                    tabuleiro[tab_l][tab_c] == 0) {
+                    tabuleiro[tab_l][tab_c] = HABILIDADE;
+                }
+            }
+        }
+    }
+
+    // Aplica habilidades
+    aplicar(cone, 4, 1);     // Cone centrado em (4,1)
+    aplicar(cruz, 4, 5);     // Cruz centrada em (4,5)
+    aplicar(losango, 4, 8);  // Losango centrado em (4,8)
+
+    //EXIBIÇÃO DO TABULEIRO 
+
+    printf("\nTabuleiro:\n\n");
+
+    // Cabeçalho de colunas
     printf("   ");
-    for (char letra = 'A'; letra <= 'J'; letra++) {
-        printf(" %c", letra);
-    }
+    for (int c = 0; c < 10; c++) printf("%2d ", c);
     printf("\n");
 
-    // Imprime linhas numeradas com conteúdo do tabuleiro
-    for (int i = 0; i < 10; i++) {
-        printf("%2d", i + 1);
-        for (int j = 0; j < 10; j++) {
-            printf(" %d", tabuleiro[i][j]);
+    // Linhas com índice e conteúdo
+    for (int l = 0; l < 10; l++) {
+        printf("%2d ", l);
+        for (int c = 0; c < 10; c++) {
+            int v = tabuleiro[l][c];
+            if (v == 0) printf(" ~ ");
+            else if (v == NAVIO) printf(" N ");
+            else if (v == HABILIDADE) printf(" 3 ");
         }
         printf("\n");
     }
+    return 0;
 
 }
